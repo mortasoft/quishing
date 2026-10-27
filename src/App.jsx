@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 
-  Skull, 
-  Volume2, 
-  VolumeX, 
-  ShieldAlert, 
-  AlertTriangle, 
-  QrCode, 
-  Lock, 
+import {
+  Skull,
+  Volume2,
+  VolumeX,
+  ShieldAlert,
+  AlertTriangle,
+  QrCode,
+  Lock,
   CheckCircle,
   Eye,
   Info
@@ -15,54 +15,43 @@ import {
 export default function App() {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [needsInteraction, setNeedsInteraction] = useState(false);
   const [hasAcknowledged, setHasAcknowledged] = useState(false);
 
   useEffect(() => {
-    // Inicializar audio
-    const audio = new Audio('/alarm.mp3');
-    audio.loop = true;
-    audioRef.current = audio;
-
-    // Intentar reproducir automáticamente al cargar la página
-    const playPromise = audio.play();
-
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setIsPlaying(true);
-          setNeedsInteraction(false);
-        })
-        .catch((error) => {
-          // La política de autoplay del navegador bloqueó el audio sin interacción previa
-          console.warn('Autoplay bloqueado por el navegador. Esperando interacción del usuario:', error);
-          setNeedsInteraction(true);
-        });
-    }
-
-    // Listener global para activar audio con el primer clic o toque en cualquier parte
-    const handleFirstInteraction = () => {
+    // Intentar reproducir automáticamente tan pronto se monte el componente
+    const startAudio = () => {
       if (audioRef.current && audioRef.current.paused) {
         audioRef.current.play()
           .then(() => {
             setIsPlaying(true);
-            setNeedsInteraction(false);
           })
-          .catch((err) => console.error('Error al iniciar audio tras interacción:', err));
+          .catch((err) => {
+            // El navegador puede requerir interacción previa del usuario
+            console.log('Esperando interacción para autoplay de audio:', err.message);
+          });
       }
     };
 
-    window.addEventListener('click', handleFirstInteraction, { once: true });
-    window.addEventListener('touchstart', handleFirstInteraction, { once: true });
-    window.addEventListener('keydown', handleFirstInteraction, { once: true });
+    startAudio();
+
+    // Si el navegador bloqueó el autoplay sin interacción, se activa con el primer toque, clic, scroll o tecla
+    const unlockEvents = ['click', 'touchstart', 'touchend', 'pointerdown', 'mousedown', 'keydown', 'scroll'];
+    const handleFirstGesture = () => {
+      startAudio();
+    };
+
+    unlockEvents.forEach((evt) => {
+      window.addEventListener(evt, handleFirstGesture, { once: true, passive: true });
+      document.addEventListener(evt, handleFirstGesture, { once: true, passive: true });
+    });
 
     return () => {
-      window.removeEventListener('click', handleFirstInteraction);
-      window.removeEventListener('touchstart', handleFirstInteraction);
-      window.removeEventListener('keydown', handleFirstInteraction);
+      unlockEvents.forEach((evt) => {
+        window.removeEventListener(evt, handleFirstGesture);
+        document.removeEventListener(evt, handleFirstGesture);
+      });
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current = null;
       }
     };
   }, []);
@@ -77,81 +66,72 @@ export default function App() {
       audioRef.current.play()
         .then(() => {
           setIsPlaying(true);
-          setNeedsInteraction(false);
         })
-        .catch((err) => console.error('Error reproduciendo audio:', err));
+        .catch((err) => console.error('Error al reproducir audio:', err));
     }
   };
 
-  const handleManualPlay = (e) => {
-    e.stopPropagation();
+  const handleAcknowledgeAndSilence = () => {
+    setHasAcknowledged(true);
     if (audioRef.current) {
-      audioRef.current.play()
-        .then(() => {
-          setIsPlaying(true);
-          setNeedsInteraction(false);
-        })
-        .catch((err) => console.error('Error:', err));
+      audioRef.current.pause();
+      setIsPlaying(false);
     }
   };
 
   return (
     <>
+      {/* Elemento de audio con autoPlay y loop */}
+      <audio
+        ref={audioRef}
+        src="/alarm.mp3"
+        autoPlay
+        loop
+        playsInline
+        preload="auto"
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+      />
+
+      {/* Barra superior de advertencia táctica */}
+      <div className="top-hazard-strip" aria-hidden="true" />
+
+      {/* Control discreto de audio en la esquina superior derecha */}
+      <button
+        className={`corner-audio-toggle ${isPlaying ? 'is-playing' : ''}`}
+        onClick={toggleSound}
+        aria-label={isPlaying ? "Silenciar alarma" : "Activar alarma"}
+        title={isPlaying ? "Silenciar alarma" : "Activar alarma"}
+      >
+        {isPlaying ? (
+          <>
+            <div className="audio-wave">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <Volume2 size={18} />
+            <span className="corner-audio-text">Silenciar</span>
+          </>
+        ) : (
+          <>
+            <VolumeX size={18} />
+            <span className="corner-audio-text">Activar sonido</span>
+          </>
+        )}
+      </button>
+
       {/* Líneas de escaneo y efectos visuales de alerta */}
       <div className="scanlines" aria-hidden="true" />
 
-      {/* Botón flotante si el navegador requirió interacción previa para el sonido */}
-      {needsInteraction && (
-        <div className="tap-to-play-overlay">
-          <button onClick={handleManualPlay} className="tap-button">
-            <Volume2 size={20} className="animate-bounce" />
-            <span>🚨 Haz clic para activar la alarma sonora</span>
-          </button>
-        </div>
-      )}
-
       <main className="container">
-        {/* Banner de control de audio / estado */}
-        <div 
-          className="audio-banner" 
-          onClick={toggleSound}
-          role="button"
-          tabIndex={0}
-          title={isPlaying ? "Silenciar alarma" : "Activar alarma"}
-        >
-          {isPlaying ? (
-            <>
-              <div className="audio-wave">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <Volume2 size={18} />
-              <span>Alarma sonando (clic para silenciar)</span>
-            </>
-          ) : (
-            <>
-              <div className="audio-wave paused">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <VolumeX size={18} />
-              <span>Alarma pausada (clic para activar)</span>
-            </>
-          )}
-        </div>
-
-        {/* Badge de advertencia */}
-        <div className="alert-badge">
-          <ShieldAlert size={16} />
-          <span>Simulación de Seguridad Informática</span>
-        </div>
-
-        {/* Icono animado de calavera con halo de pulso */}
+        {/* Icono de calavera con retícula cibernética táctica (sin glow, diseño nítido) */}
         <div className="icon-stage">
-          <div className="skull-glow-ring" />
-          <Skull size={96} className="skull-icon" strokeWidth={1.75} />
+          <div className="reticle-circle" aria-hidden="true" />
+          <div className="reticle-circle-inner" aria-hidden="true" />
+          <div className="reticle-crosshair-h" aria-hidden="true" />
+          <div className="reticle-crosshair-v" aria-hidden="true" />
+          <Skull size={200} className="skull-icon" strokeWidth={2} />
         </div>
 
         {/* Título principal con el mensaje original */}
@@ -212,31 +192,18 @@ export default function App() {
           </div>
         </div>
 
-        {/* Botones de acción */}
+        {/* Botón de acción combinado */}
         <div className="action-buttons">
-          <button 
-            className="btn-primary"
-            onClick={() => setHasAcknowledged(true)}
+          <button
+            className={`btn-primary ${hasAcknowledged ? 'acknowledged' : ''}`}
+            onClick={handleAcknowledgeAndSilence}
           >
-            {hasAcknowledged ? (
-              <>
-                <CheckCircle size={18} />
-                <span>¡Lección completada! Mantente seguro</span>
-              </>
-            ) : (
-              <>
-                <CheckCircle size={18} />
-                <span>He aprendido la lección</span>
-              </>
-            )}
-          </button>
-
-          <button 
-            className="btn-secondary"
-            onClick={toggleSound}
-          >
-            {isPlaying ? <VolumeX size={18} /> : <Volume2 size={18} />}
-            <span>{isPlaying ? 'Silenciar alarma' : 'Probar sonido de alarma'}</span>
+            <CheckCircle size={20} />
+            <span>
+              {hasAcknowledged
+                ? '¡Lección aprendida! Alarma silenciada'
+                : 'Aprendí la lección y silenciar alarma'}
+            </span>
           </button>
         </div>
 

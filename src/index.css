@@ -1,28 +1,24 @@
 :root {
   --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  
-  --bg-dark: #0a0507;
-  --bg-gradient-top: #1f080c;
-  --bg-gradient-mid: #380a10;
-  --bg-card: rgba(26, 8, 12, 0.75);
-  --bg-card-hover: rgba(38, 12, 18, 0.85);
-  
-  --color-danger: #ef4444;
-  --color-danger-bright: #ff2a2a;
-  --color-danger-glow: rgba(239, 68, 68, 0.45);
-  --color-warning: #f59e0b;
-  --color-success: #10b981;
-  
+
+  /* Fondo oscuro y paneles tácticos */
+  --bg-dark: #08080a;
+  --bg-panel: #121215;
+  --bg-panel-hover: #18181c;
+
+  /* Rojo vivo puro de alerta cibernética (sin tintes rosados ni desenfoques) */
+  --red-alert: #ee0000;
+  --red-hover: #c40000;
+  --red-dark: #800000;
+
+  /* Textos nítidos de alta legibilidad */
   --text-white: #ffffff;
-  --text-muted: #fca5a5;
-  --text-dim: #991b1b;
-  
-  --border-danger: rgba(239, 68, 68, 0.35);
-  --border-bright: rgba(255, 68, 68, 0.7);
+  --text-light: #f3f4f6;
+  --text-muted: #d1d5db;
+
   --border-radius-sm: 8px;
-  --border-radius-md: 16px;
-  --border-radius-lg: 24px;
+  --border-radius-md: 14px;
 }
 
 * {
@@ -33,7 +29,18 @@
 
 body {
   font-family: var(--font-main);
-  background: radial-gradient(circle at 50% 20%, #450a0a 0%, #1f0407 45%, #080204 100%);
+  background-color: var(--bg-dark);
+  /* Fondo cibernético moderno: rejilla técnica + micro-puntos tácticos + profundidad oscura */
+  background-image:
+    /* Matriz de micro-puntos tácticos */
+    radial-gradient(rgba(238, 0, 0, 0.2) 1.5px, transparent 1.5px),
+    /* Malla de cuadrícula de ciberseguridad */
+    linear-gradient(rgba(238, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238, 0, 0, 0.04) 1px, transparent 1px),
+    /* Gradiente atmosférico profundo (rojo sangre oscuro a negro carbón, sin haze lechoso) */
+    radial-gradient(ellipse 90% 55% at 50% 0%, #220205 0%, #0e0103 45%, #08080a 100%);
+  background-size: 28px 28px, 56px 56px, 56px 56px, 100% 100%;
+  background-attachment: fixed;
   color: var(--text-white);
   min-height: 100vh;
   overflow-x: hidden;
@@ -42,41 +49,43 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Ambient cyber emergency beacon animation */
-body::before {
-  content: '';
+/* Barra superior de advertencia táctica (Hazard Strip) */
+.top-hazard-strip {
   position: fixed;
-  top: -150px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.28) 0%, rgba(220, 38, 38, 0.08) 50%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-  animation: beacon-pulse 3s infinite ease-in-out;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--red-alert),
+    var(--red-alert) 14px,
+    #111114 14px,
+    #111114 28px
+  );
+  z-index: 1000;
 }
 
-/* Scanline effect */
+/* Efecto sutil de scanlines cibernéticas */
 .scanlines {
   position: fixed;
   inset: 0;
   background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%, 
-    rgba(0, 0, 0, 0.25) 50%
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.35) 50%
   );
   background-size: 100% 4px;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.4;
+  opacity: 0.3;
 }
 
-/* Container */
+/* Contenedor principal */
 .container {
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
-  padding: 2.5rem 1.25rem 4rem;
+  padding: 3rem 1.25rem 4rem;
   position: relative;
   z-index: 2;
   display: flex;
@@ -86,28 +95,51 @@ body::before {
   justify-content: center;
 }
 
-/* Floating Audio Bar / Warning Banner */
-.audio-banner {
-  background: linear-gradient(90deg, rgba(220, 38, 38, 0.95), rgba(153, 27, 27, 0.95));
-  border: 1px solid rgba(254, 202, 202, 0.4);
-  backdrop-filter: blur(12px);
-  padding: 0.65rem 1.25rem;
-  border-radius: 9999px;
+/* Control flotante discreto de audio en la esquina superior */
+.corner-audio-toggle {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 100;
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 0 25px rgba(220, 38, 38, 0.5);
-  animation: pulse-border 2s infinite;
+  gap: 0.6rem;
+  background-color: #151518;
+  border: 2px solid var(--red-alert);
+  color: #ffffff;
+  padding: 0.5rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  font-weight: 600;
-  font-size: 0.95rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  user-select: none;
 }
 
-.audio-banner:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 35px rgba(239, 68, 68, 0.8);
+.corner-audio-toggle:hover {
+  background-color: var(--red-alert);
+  border-color: var(--red-alert);
+  transform: translateY(-1px);
+}
+
+.corner-audio-toggle.is-playing {
+  border-color: var(--red-alert);
+}
+
+.corner-audio-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px) {
+  .corner-audio-text {
+    display: none;
+  }
+  .corner-audio-toggle {
+    padding: 0.55rem;
+  }
 }
 
 .audio-wave {
@@ -138,72 +170,97 @@ body::before {
   height: 4px;
 }
 
-/* Skull & Warning Icon Stage */
+/* Escenario del icono de calavera con retícula cibernética táctica */
 .icon-stage {
   position: relative;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 250px;
+  height: 250px;
 }
 
-.skull-glow-ring {
+.reticle-circle {
   position: absolute;
-  width: 140px;
-  height: 140px;
+  width: 240px;
+  height: 240px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.6) 0%, transparent 70%);
-  animation: glow-pulse 1.8s infinite ease-in-out;
+  border: 1.5px dashed rgba(238, 0, 0, 0.45);
+  pointer-events: none;
+  animation: rotate-slow 24s linear infinite;
+}
+
+.reticle-circle-inner {
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  border: 1px solid rgba(238, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.reticle-crosshair-h {
+  position: absolute;
+  width: 260px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(238, 0, 0, 0.4) 20%, rgba(238, 0, 0, 0.4) 80%, transparent);
+  pointer-events: none;
+}
+
+.reticle-crosshair-v {
+  position: absolute;
+  width: 1px;
+  height: 260px;
+  background: linear-gradient(180deg, transparent, rgba(238, 0, 0, 0.4) 20%, rgba(238, 0, 0, 0.4) 80%, transparent);
+  pointer-events: none;
 }
 
 .skull-icon {
   position: relative;
-  color: #ffffff;
-  filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 30px rgba(239, 68, 68, 0.9));
+  color: var(--red-alert);
   animation: skull-heartbeat 1.6s infinite ease-in-out;
+  z-index: 2;
 }
 
-/* Main Alert Badge */
+/* Badge de advertencia táctico */
 .alert-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  padding: 0.4rem 1rem;
+  background-color: #150204;
+  border: 1.5px solid var(--red-alert);
+  padding: 0.45rem 1.25rem;
   border-radius: 9999px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 700;
-  color: #fca5a5;
-  margin-bottom: 1rem;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
 }
 
-/* Main Danger Title */
+/* Título principal de peligro con acento técnico */
 .main-title {
-  font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
   font-weight: 900;
   letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.15;
   text-align: center;
   margin-bottom: 1.5rem;
-  background: linear-gradient(180deg, #ffffff 30%, #fecaca 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 18px rgba(239, 68, 68, 0.5));
-  padding: 0.5rem 1rem;
+  color: #ffffff;
+  padding: 0.75rem 1.75rem;
   border-radius: var(--border-radius-md);
-  border: 2px solid rgba(239, 68, 68, 0.4);
-  background-color: rgba(185, 28, 28, 0.4);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(239, 68, 68, 0.2);
+  border: 2px solid var(--red-alert);
+  border-top: 4px solid var(--red-alert);
+  background-color: #140204;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
 }
 
-/* Subtitle and warning description */
+/* Subtítulo y texto descriptivo */
 .warning-desc {
-  font-size: clamp(1.1rem, 2.4vw, 1.45rem);
-  color: #fee2e2;
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  color: var(--text-light);
   text-align: center;
   max-width: 680px;
   margin-bottom: 2.5rem;
@@ -212,11 +269,11 @@ body::before {
 }
 
 .warning-desc strong {
-  color: #ffffff;
-  font-weight: 700;
+  color: var(--red-alert);
+  font-weight: 800;
 }
 
-/* Glass Cards Section */
+/* Cuadrícula de tarjetas de advertencia tipo panel de SOC */
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -226,13 +283,13 @@ body::before {
 }
 
 .glass-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-danger);
+  background-color: var(--bg-panel);
+  border: 1px solid #28060a;
+  border-top: 3px solid var(--red-alert);
   border-radius: var(--border-radius-md);
   padding: 1.5rem;
-  backdrop-filter: blur(14px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -240,34 +297,34 @@ body::before {
 
 .glass-card:hover {
   transform: translateY(-4px);
-  border-color: var(--border-bright);
-  box-shadow: 0 12px 36px rgba(239, 68, 68, 0.25);
-  background: var(--bg-card-hover);
+  background-color: var(--bg-panel-hover);
+  border-color: #440a10;
+  border-top-color: #ff2222;
 }
 
 .card-header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1.1rem;
   color: #ffffff;
 }
 
 .card-icon {
-  color: var(--color-danger);
+  color: var(--red-alert);
 }
 
 .card-body {
   font-size: 0.95rem;
-  color: #fca5a5;
+  color: var(--text-muted);
   line-height: 1.55;
 }
 
-/* Quishing Alert box */
+/* Recuadro explicativo de Quishing */
 .quishing-box {
-  background: rgba(15, 6, 8, 0.85);
-  border: 1px dashed rgba(239, 68, 68, 0.6);
+  background-color: var(--bg-panel);
+  border: 2px dashed var(--red-alert);
   border-radius: var(--border-radius-md);
   padding: 1.25rem 1.5rem;
   width: 100%;
@@ -275,140 +332,87 @@ body::before {
   align-items: center;
   gap: 1.25rem;
   margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .quishing-icon {
   flex-shrink: 0;
-  background: rgba(239, 68, 68, 0.2);
+  background-color: #220305;
+  border: 1.5px solid var(--red-alert);
   padding: 0.8rem;
   border-radius: var(--border-radius-sm);
-  color: #f87171;
+  color: var(--red-alert);
 }
 
 .quishing-text h4 {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 800;
   margin-bottom: 0.25rem;
   color: #ffffff;
 }
 
 .quishing-text p {
-  font-size: 0.9rem;
-  color: #fca5a5;
+  font-size: 0.95rem;
+  color: var(--text-muted);
 }
 
-/* Action Buttons */
+/* Botón de acción principal */
 .action-buttons {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
   width: 100%;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  background-color: var(--red-alert);
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 0.85rem 1.75rem;
+  border: 2px solid #ffffff;
+  padding: 1rem 2.2rem;
   border-radius: var(--border-radius-sm);
   font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: 800;
+  font-size: 1.1rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  box-shadow: 0 6px 20px rgba(185, 28, 28, 0.5);
-  transition: all 0.2s ease;
+  gap: 0.65rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  letter-spacing: 0.01em;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(239, 68, 68, 0.7);
-  background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+  background-color: var(--red-hover);
 }
 
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fecaca;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 0.85rem 1.75rem;
-  border-radius: var(--border-radius-sm);
-  font-family: var(--font-main);
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
+.btn-primary.acknowledged {
+  background-color: #10b981;
+  border-color: #ffffff;
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.3);
+.btn-primary.acknowledged:hover {
+  background-color: #059669;
 }
 
-/* Overlay for first user interaction (Autoplay Policy fallback) */
-.tap-to-play-overlay {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  z-index: 100;
-  animation: bounce-in 0.5s ease;
-}
-
-.tap-button {
-  background: #dc2626;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-  padding: 0.75rem 1.25rem;
-  border-radius: 9999px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(220, 38, 38, 0.9);
-  animation: pulse-border 1.5s infinite;
-}
-
-/* Footer note */
+/* Nota de pie */
 .footer-note {
   margin-top: 3.5rem;
   font-size: 0.85rem;
-  color: #f87171;
-  opacity: 0.8;
+  color: #9ca3af;
   text-align: center;
   display: flex;
   align-items: center;
   gap: 0.4rem;
 }
 
-/* Keyframes */
-@keyframes beacon-pulse {
-  0%, 100% {
-    opacity: 0.5;
-    transform: translateX(-50%) scale(1);
+/* Animaciones y fotogramas limpios sin desenfoques */
+@keyframes rotate-slow {
+  from {
+    transform: rotate(0deg);
   }
-  50% {
-    opacity: 0.85;
-    transform: translateX(-50%) scale(1.15);
-  }
-}
-
-@keyframes glow-pulse {
-  0%, 100% {
-    transform: scale(0.9);
-    opacity: 0.4;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.8;
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -417,24 +421,13 @@ body::before {
     transform: scale(1);
   }
   15% {
-    transform: scale(1.12);
+    transform: scale(1.08);
   }
   30% {
     transform: scale(1);
   }
   45% {
-    transform: scale(1.08);
-  }
-}
-
-@keyframes pulse-border {
-  0%, 100% {
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
-  }
-  50% {
-    border-color: #ffffff;
-    box-shadow: 0 0 30px rgba(239, 68, 68, 0.9);
+    transform: scale(1.05);
   }
 }
 
@@ -447,39 +440,21 @@ body::before {
   }
 }
 
-@keyframes bounce-in {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @media (max-width: 640px) {
   .container {
-    padding: 1.5rem 1rem 3rem;
+    padding: 2rem 1rem 3rem;
   }
+
   .quishing-box {
     flex-direction: column;
     text-align: center;
   }
+
   .action-buttons {
-    flex-direction: column;
     width: 100%;
   }
-  .btn-primary, .btn-secondary {
-    width: 100%;
-    justify-content: center;
-  }
-  .tap-to-play-overlay {
-    left: 1rem;
-    right: 1rem;
-    bottom: 1rem;
-  }
-  .tap-button {
+
+  .btn-primary {
     width: 100%;
     justify-content: center;
   }
