@@ -4,3 +4,7 @@ dist-ssr
 *.local
 .firebase
 .DS_Store
+*-debug.log
+firebase-debug.log*
+.env
+.env.*
